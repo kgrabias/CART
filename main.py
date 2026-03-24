@@ -5,7 +5,7 @@ from regTrees import createTree, predict
 dataset = loadData('iris')
 data=dataset['data']
 #tree = createTree(data, ops=(0, 1))    #Tree without preprunning, overfitted
-tree = createTree(data, ops=(0, 5))     #Tree with preprunning, not overfitted
+tree = createTree(data, ops=(1, 5))     #Tree with preprunning, not overfitted
 print(tree)
 
 X = data[:, :-1]
