@@ -1,26 +1,30 @@
 import numpy as np
 from sklearn.datasets import load_iris, load_diabetes
-def loadData(dataset):
-	if dataset=='iris':
-		X, y = load_iris(return_X_y=True)
-		data = reshapeData(X, y)
-	if dataset=='diabetes':
-		data = load_diabetes()
-	return data
+def loadData(choice):
+	if choice=='iris':
+		dataSet= load_iris()
+		target_names = dataSet.target_names.tolist()
+	elif choice=='diabetes':
+		dataSet = load_diabetes()
+	else:
+		return None
+	X = dataSet.data 	#ndarray
+	y = dataSet.target 	#ndarray
+	data = reshapeData(X, y)
+	feature_names = dataSet.feature_names 	#list
+	newDataSet={
+			"data" : data,
+			"feature_names" : feature_names
+			}
+	if choice=='iris':
+		newDataSet.update({
+			"target_names" : target_names
+		})
+	return newDataSet
 
 
 def reshapeData(X, y):
 	return np.hstack([X, y.reshape(-1, 1)])
 
 
-# For debugging
-def printIrisData():
-	dataset=loadData('iris')
-	data = dataset[0]
-	target=dataset[1]
-	target_names = ['setosa', 'versicolor', 'virginica']
-	for i in range (0,149):
-		print('data: ',data[i],'target: ',target_names[int(target[i])])
-
-
-
+print(loadData('iris'))
