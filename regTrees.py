@@ -1,19 +1,5 @@
 import numpy as np
 
-
-class Tree:
-    def __init__(self, root=None):
-        self.root = root
-
-
-class treeNode:
-    def __init__(self, left, right, feature, value):
-        self.rightBranch = right
-        self.leftBranch = left
-        self.featureToSplitOn = feature
-        self.valueOfSplit = value
-
-
 def binSplitDataSet(dataSet, feature, value):
     aboveSet = dataSet[np.nonzero(dataSet[:,feature] > value)[0],:]
     belowEqualSet = dataSet[np.nonzero(dataSet[:,feature] <= value)[0],:]
