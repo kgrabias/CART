@@ -82,3 +82,16 @@ def createTree(dataSet, leafType=classLeaf, errType=classErr, ops=(1,4)):
     retTree['left'] = createTree(lSet, leafType, errType, ops)
     retTree['right'] = createTree(rSet, leafType, errType, ops)
     return retTree
+
+def predictForOneNode(tree, sample):
+    node = tree
+    while isinstance(node, dict):
+        if sample[node['spInd']] > node['spVal']:
+            node = node['left']
+        else:
+            node = node['right']
+    return node
+
+
+def predict(tree, X):
+    return np.array([predictForOneNode(tree, sample) for sample in X])

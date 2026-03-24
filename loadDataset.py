@@ -25,6 +25,3 @@ def loadData(choice):
 
 def reshapeData(X, y):
 	return np.hstack([X, y.reshape(-1, 1)])
-
-
-print(loadData('iris'))
