@@ -13,7 +13,10 @@ def classLeaf(dataSet):
         counts[label] = counts.get(label, 0) + 1
     return max(counts, key=counts.get)  
 
+def regLeaf(dataSet):
+    return np.mean(dataSet[:, -1])
 
+# Classification error: Gini impurity * number of samples
 def classErr(dataSet):
 
     labels = dataSet[:, -1]
@@ -25,6 +28,13 @@ def classErr(dataSet):
         counts[label] = counts.get(label, 0) + 1
     gini = 1.0 - sum((c / n) ** 2 for c in counts.values())
     return gini * n
+
+# Regression error: total variance of the target variable in the dataset
+def regErr(dataSet):
+    if dataSet.shape[0] == 0:
+        return 0.0
+    mean = np.mean(dataSet[:, -1])
+    return np.sum((dataSet[:, -1] - mean) ** 2)
 
 
 def chooseBestSplit(dataSet, leafType=classLeaf, errType=classErr, ops=(1, 4)):
