@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import numpy as np
+from pathlib import Path
  
 FEATURE_NAMES = ['sepal length', 'sepal width', 'petal length', 'petal width']
 CLASS_NAMES   = ['setosa', 'versicolor', 'virginica']
@@ -101,7 +103,7 @@ def _draw_reg_node(ax, node, x, y, dx, dy, feature_names, parent_xy=None):
     _draw_reg_node(ax, node['right'], x_right, ny, dx * rw / total, dy, feature_names, (x, y - 0.022))
  
  
-def plot_tree(tree, title='Drzewo decyzyjne – Iris'):
+def plot_tree(tree, title='Iris Classification'):
     fig, ax = plt.subplots(figsize=(13, 7))
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 0.15)
@@ -139,5 +141,83 @@ def plot_tree_regression(tree, feature_names, title='Drzewo regresyjne'):
     ax.legend(handles=legend_patches, loc='lower right', fontsize=8, framealpha=0.8)
     ax.set_title(title, fontsize=11, pad=8)
 
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_regression_results(
+    x_values,
+    y_true,
+    y_pred,
+    title,
+    x_label='x',
+    data_label='Dane',
+    baseline_x=None,
+    baseline_y=None,
+    baseline_label='Funkcja odniesienia',
+):
+    x_values = np.asarray(x_values).reshape(-1)
+    y_true = np.asarray(y_true).reshape(-1)
+    y_pred = np.asarray(y_pred).reshape(-1)
+
+    order = np.argsort(x_values)
+    x_sorted = x_values[order]
+    y_true_sorted = y_true[order]
+    y_pred_sorted = y_pred[order]
+
+    plt.figure(figsize=(10, 4))
+    plt.scatter(x_sorted, y_true_sorted, s=10, alpha=0.5, label=data_label)
+    plt.plot(x_sorted, y_pred_sorted, color='red', linewidth=2, label='CART')
+
+    if baseline_x is not None and baseline_y is not None:
+        baseline_x = np.asarray(baseline_x).reshape(-1)
+        baseline_y = np.asarray(baseline_y).reshape(-1)
+        base_order = np.argsort(baseline_x)
+        plt.plot(
+            baseline_x[base_order],
+            baseline_y[base_order],
+            color='green',
+            linestyle='--',
+            linewidth=1.5,
+            label=baseline_label,
+        )
+
+    plt.xlabel(x_label)
+    plt.ylabel('y')
+    plt.legend()
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+
+def show_iris_image(predicted_class, sample=None, feature_names=None, data_dir='data'):
+    image_by_class = {
+        'setosa': 'Iris_setosa.jpg',
+        'versicolor': 'Iris_versicolor.jpg',
+        'virginica': 'Iris_virginica.jpg',
+    }
+    image_name = image_by_class.get(str(predicted_class))
+    if image_name is None:
+        return
+
+    image_path = Path(__file__).resolve().parent / data_dir / image_name
+    if not image_path.exists():
+        print(f'Nie znaleziono obrazu: {image_path}')
+        return
+
+    feature_lines = []
+    if sample is not None and feature_names is not None:
+        sample_values = np.asarray(sample).reshape(-1)
+        for feature_name, value in zip(feature_names, sample_values):
+            unit = ' cm' if ('length' in feature_name or 'width' in feature_name) else ''
+            feature_lines.append(f'{feature_name}: {value:.2f}{unit}')
+
+    image = plt.imread(image_path)
+    plt.figure(figsize=(6, 6))
+    plt.imshow(image)
+    plt.axis('off')
+    if feature_lines:
+        plt.suptitle('\n'.join(feature_lines), fontsize=10, y=0.98)
+    plt.title(f'Predicted iris: {predicted_class}', fontsize=12, pad=10)
     plt.tight_layout()
     plt.show()

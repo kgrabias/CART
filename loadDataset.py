@@ -1,5 +1,7 @@
 import numpy as np
-from sklearn.datasets import load_iris, load_diabetes
+from sklearn.datasets import load_iris, load_diabetes, make_friedman1
+
+
 def loadData(choice):
 	if choice == 'sinus':
 		np.random.seed(42)
@@ -11,6 +13,14 @@ def loadData(choice):
         "feature_names": ["x"],
         "target_names": None
     }
+	if choice == 'friedman_function':
+		X, y = make_friedman1(random_state=42)
+		data = reshapeData(X, y)
+		return {
+		"data": data,
+		"feature_names": [f"x{i}" for i in range(X.shape[1])],
+		"target_names": None
+	}
 	if choice=='iris':
 		dataSet= load_iris()
 		target_names = dataSet.target_names.tolist()

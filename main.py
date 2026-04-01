@@ -1,16 +1,32 @@
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 
 from loadDataset import loadData
 from regTrees import createTree, predict, regErr, regLeaf
-from visualize import plot_tree, plot_tree_regression
+from visualize import (
+    plot_tree,
+    plot_tree_regression,
+    show_iris_image,
+    plot_regression_results,
+)
 
-mode = 'iris'  # iris, sinus, diabetes, funny-function
+mode = 'friedman_function'  # iris, sine, diabetes, friedman_function
 
 
+def fit_regression_tree(dataset_name, ops):
+    dataset = loadData(dataset_name)
+    data = dataset['data']
+    X = data[:, :-1]
+    y = data[:, -1]
+
+    tree = createTree(data, leafType=regLeaf, errType=regErr, ops=ops)
+    y_pred = predict(tree, X)
+    mse = np.mean((y - y_pred) ** 2)
+    return dataset, tree, X, y, y_pred, mse
 
 def run_iris():
+    sample = np.array([[4.25, 7.9, 5.8, 0.8]], dtype=float) 
+
     dataset = loadData('iris')
     data = dataset['data']
     #tree = createTree(data, ops=(0, 1))    #Tree without preprunning, overfitted
@@ -22,61 +38,67 @@ def run_iris():
     accuracy = np.mean(predict(tree, X) == y)
     print(f"Accuracy: {accuracy:.4f}")
 
-    sample = np.array([[4.25, 7.9, 5.8, 0.8]], dtype=float)
     prediction = predict(tree, sample)[0]
-    print('Prediction for sample ', sample, ': ', dataset['target_names'][int(prediction)])
+    predicted_class = str(dataset['target_names'][int(prediction)])
+    print('Prediction for sample ', sample, ': ', predicted_class)
+    show_iris_image(predicted_class, sample=sample, feature_names=dataset['feature_names'])
 
     plot_tree(tree, title='Drzewo decyzyjne - Iris')
 
 
-def run_sinus():
-    dataset = loadData('sinus')
-    data = dataset['data']
-
-    tree = createTree(data, leafType=regLeaf, errType=regErr, ops=(0.01, 5))
-    X = data[:, :-1]
-    y = data[:, -1]
-    y_pred = predict(tree, X)
-
-    mse = np.mean((y - y_pred) ** 2)
+def run_sine():
+    # _, tree, X, y, y_pred, mse = fit_regression_tree('sinus', ops=(0.01, 1)) #overfitted
+    dataset, tree, X, y, y_pred, mse = fit_regression_tree('sinus', ops=(0.01, 10))  #not overfitted
     print(f"MSE (sinus): {mse:.5f}")
 
     x_vals = X.ravel()
-    plt.figure(figsize=(10, 4))
-    plt.scatter(x_vals, y, s=10, alpha=0.5, label='Dane (sin + szum)')
-    plt.plot(x_vals, y_pred, color='red', linewidth=2, label='Regresja CART')
-    plt.plot(x_vals, np.sin(x_vals), color='green', linestyle='--', linewidth=1.5, label='Sinus')
-    plt.legend()
-    plt.title('Regresja CART - aproksymacja sinusa')
-    plt.tight_layout()
-    plt.show()
+    plot_regression_results(
+        x_vals,
+        y,
+        y_pred,
+        title='Regresja CART - aproksymacja sinusa',
+        x_label='x',
+        data_label='Dane (sin + szum)',
+        baseline_x=x_vals,
+        baseline_y=np.sin(x_vals),
+        baseline_label='Sinus',
+    )
+    plot_tree_regression(tree, dataset['feature_names'], title='Drzewo regresyjne - Sinus')
 
 
 def run_diabetes():
-    dataset = loadData('diabetes')
-    data = dataset['data']
-
-    tree = createTree(data, leafType=regLeaf, errType=regErr, ops=(5000, 15))
-    X = data[:, :-1]
-    y = data[:, -1]
-    y_pred = predict(tree, X)
-
-    mse = np.mean((y - y_pred) ** 2)
+    dataset, tree, X, y, y_pred, mse = fit_regression_tree('diabetes', ops=(25, 5)) #Dużo feater'ów, mało danych, ciężko o kompromis
     print(f"MSE (diabetes): {mse:.2f}")
+    
+    sample = X[0:1] 
+    sample_prediction = predict(tree, sample)[0]
+    print(f"Prediction for sample: {sample_prediction:.2f} (actual: {y[0]:.2f})")
+
     plot_tree_regression(tree, dataset['feature_names'], title='Drzewo regresyjne - Diabetes')
 
 
-def run_funny_function():
-    print()
+def run_friedman_function():
+    dataset, tree, X, y, y_pred, mse = fit_regression_tree('friedman_function', ops=(20, 5))
+    print(f"MSE (friedman_function): {mse:.2f}")
+
+    sample_idx = np.arange(len(y))
+    plot_regression_results(
+        sample_idx,
+        y,
+        y_pred,
+        title='Regresja CART - aproksymacja Friedman #1',
+        x_label='indeks probki',
+    )
+    plot_tree_regression(tree, dataset['feature_names'], title='Drzewo regresyjne - Friedman Function')
 
 
 if mode == 'iris':
     run_iris()
-elif mode == 'sinus':
-    run_sinus()
+elif mode == 'sine':
+    run_sine()
 elif mode == 'diabetes':
     run_diabetes()
-elif mode == 'funny-function':
-    run_funny_function()
+elif mode == 'friedman_function':
+    run_friedman_function()
 else:
     print(f"Błąd, Nieprawidłowy tryb: {mode}")
