@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree as sklearn_plot_tree
 from loadDataset import loadData
 from regTrees import classErr, classLeaf, createTree, predict, regErr, regLeaf
@@ -139,31 +140,49 @@ def run_regression_mode(
     return X, y, custom_tree, sklearn_tree
 
 def run_iris():
-    sample = np.array([[4.25, 7.9, 5.8, 0.8]], dtype=float) 
+    # sample = np.array([[4.25, 7.9, 5.8, 0.8]], dtype=float)
 
     dataset = loadData('iris')
     data = dataset['data']
-    tree, custom_build_time = timed_custom_tree(data, ops=(1, 5), leaf_type=classLeaf, err_type=classErr)
-
     X = data[:, :-1]
     y = data[:, -1]
-    y_pred_custom = predict(tree, X)
-    mse_custom = mse(y, y_pred_custom)
-    accuracy = np.mean(y_pred_custom == y)
+
+    # Train on n-12 samples and keep exactly 12 samples for test.
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=12,
+        random_state=42,
+        stratify=y,
+    )
+    train_data = np.hstack([X_train, y_train.reshape(-1, 1)])
+
+    # tree, custom_build_time = timed_custom_tree(data, ops=(1, 5), leaf_type=classLeaf, err_type=classErr)
+    tree, custom_build_time = timed_custom_tree(train_data, ops=(1, 5), leaf_type=classLeaf, err_type=classErr)
+
+    # y_pred_custom = predict(tree, X)
+    y_pred_custom = predict(tree, X_test)
+    mse_custom = mse(y_test, y_pred_custom)
+    accuracy = np.mean(y_pred_custom == y_test)
 
     sklearn_tree = DecisionTreeClassifier(
         criterion='gini',
         min_samples_split=5,
         random_state=42,
     )
-    sklearn_tree, sklearn_build_time = timed_sklearn_fit(sklearn_tree, X, y)
-    y_pred_sklearn = sklearn_tree.predict(X)
-    mse_sklearn = mse(y, y_pred_sklearn)
-    sklearn_accuracy = np.mean(y_pred_sklearn == y)
+    sklearn_tree, sklearn_build_time = timed_sklearn_fit(sklearn_tree, X_train, y_train)
+    y_pred_sklearn = sklearn_tree.predict(X_test)
+    mse_sklearn = mse(y_test, y_pred_sklearn)
+    sklearn_accuracy = np.mean(y_pred_sklearn == y_test)
 
     print_comparison_metrics('iris', mse_custom, mse_sklearn, custom_build_time, sklearn_build_time)
-    print(f"Accuracy (iris, CART własny): {accuracy:.4f}")
-    print(f"Accuracy (iris, CART scikit-learn): {sklearn_accuracy:.4f}")
+    print(f"Liczba probek train/test: {len(X_train)}/{len(X_test)}")
+    print(f"Accuracy test (iris, CART własny): {accuracy:.4f}")
+    print(f"Accuracy test (iris, CART scikit-learn): {sklearn_accuracy:.4f}")
+
+    sample = X_test[0:1]
+    sample_true_class = str(dataset['target_names'][int(y_test[0])])
+    print(f"Sample testowy: {sample}   {sample_true_class}")
 
     prediction = predict(tree, sample)[0]
     predicted_class = str(dataset['target_names'][int(prediction)])
@@ -189,7 +208,7 @@ def run_sine():
     run_regression_mode(
         dataset_name='sinus',
         display_name='sinus',
-        custom_ops=(0.01, 10),
+        custom_ops=(0.1, 15),
         sklearn_params={'min_impurity_decrease': 0.01, 'min_samples_split': 10},
         x_values=x_vals,
         x_label='x',
@@ -205,8 +224,8 @@ def run_diabetes():
     X, y, tree, sklearn_tree = run_regression_mode(
         dataset_name='diabetes',
         display_name='diabetes',
-        custom_ops=(25, 5),
-        sklearn_params={'min_impurity_decrease': 25, 'min_samples_split': 5},
+        custom_ops=(10, 2),
+        sklearn_params={'min_impurity_decrease': 10, 'min_samples_split': 2},
         x_values=np.arange(loadData('diabetes')['data'].shape[0]),
         x_label='indeks probki',
         data_label='Dane',
@@ -229,8 +248,8 @@ def run_friedman_function():
     run_regression_mode(
         dataset_name='friedman_function',
         display_name='friedman_function',
-        custom_ops=(1, 5),
-        sklearn_params={'min_impurity_decrease': 0.1, 'min_samples_split': 5},
+        custom_ops=(0.05, 3),
+        sklearn_params={'min_impurity_decrease': 0.05, 'min_samples_split': 3},
         x_values=sample_idx,
         x_label='indeks probki',
         data_label='Dane (Friedman + szum)',

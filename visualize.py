@@ -57,9 +57,9 @@ def _draw_node(ax, node, x, y, dx, dy, parent_xy=None):
     x_right = x + dx * lw / total
     ny = y - dy
  
-    ax.text((x + x_right) / 2, y - dy * 0.35, '>',
+    ax.text((x + x_right) / 2, y - dy * 0.35, '<=',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
-    ax.text((x + x_left) / 2,  y - dy * 0.35, '<=',
+    ax.text((x + x_left) / 2,  y - dy * 0.35, '>',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
  
     _draw_node(ax, node['left'],  x_left,  ny, dx * lw / total,  dy, (x, y - 0.022))
@@ -94,9 +94,9 @@ def _draw_reg_node(ax, node, x, y, dx, dy, feature_names, parent_xy=None):
     x_right = x + dx * lw / total
     ny = y - dy
 
-    ax.text((x + x_right) / 2, y - dy * 0.35, '>',
+    ax.text((x + x_right) / 2, y - dy * 0.35, '<=',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
-    ax.text((x + x_left) / 2, y - dy * 0.35, '<=',
+    ax.text((x + x_left) / 2, y - dy * 0.35, '>',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
 
     _draw_reg_node(ax, node['left'], x_left, ny, dx * lw / total, dy, feature_names, (x, y - 0.022))
