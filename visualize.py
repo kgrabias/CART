@@ -57,9 +57,9 @@ def _draw_node(ax, node, x, y, dx, dy, parent_xy=None):
     x_right = x + dx * lw / total
     ny = y - dy
  
-    ax.text((x + x_right) / 2, y - dy * 0.35, '>',
+    ax.text((x + x_right) / 2, y - dy * 0.35, '<=',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
-    ax.text((x + x_left) / 2,  y - dy * 0.35, '<=',
+    ax.text((x + x_left) / 2,  y - dy * 0.35, '>',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
  
     _draw_node(ax, node['left'],  x_left,  ny, dx * lw / total,  dy, (x, y - 0.022))
@@ -94,9 +94,9 @@ def _draw_reg_node(ax, node, x, y, dx, dy, feature_names, parent_xy=None):
     x_right = x + dx * lw / total
     ny = y - dy
 
-    ax.text((x + x_right) / 2, y - dy * 0.35, '>',
+    ax.text((x + x_right) / 2, y - dy * 0.35, '<=',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
-    ax.text((x + x_left) / 2, y - dy * 0.35, '<=',
+    ax.text((x + x_left) / 2, y - dy * 0.35, '>',
             ha='center', va='center', fontsize=7, color='#5F5E5A')
 
     _draw_reg_node(ax, node['left'], x_left, ny, dx * lw / total, dy, feature_names, (x, y - 0.022))
@@ -155,6 +155,7 @@ def plot_regression_results(
     baseline_x=None,
     baseline_y=None,
     baseline_label='Funkcja odniesienia',
+    model_label='CART',
 ):
     x_values = np.asarray(x_values).reshape(-1)
     y_true = np.asarray(y_true).reshape(-1)
@@ -167,7 +168,7 @@ def plot_regression_results(
 
     plt.figure(figsize=(10, 4))
     plt.scatter(x_sorted, y_true_sorted, s=10, alpha=0.5, label=data_label)
-    plt.plot(x_sorted, y_pred_sorted, color='red', linewidth=2, label='CART')
+    plt.plot(x_sorted, y_pred_sorted, color='red', linewidth=2, label=model_label)
 
     if baseline_x is not None and baseline_y is not None:
         baseline_x = np.asarray(baseline_x).reshape(-1)
