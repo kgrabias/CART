@@ -1,6 +1,6 @@
 from Fit import *
 
-mode = 'sine'  # iris, sine, diabetes, friedman_function
+mode = 'diabetes'  # iris, sine, diabetes, friedman_function
 
 if mode == 'iris':
     run_iris()

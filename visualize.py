@@ -155,6 +155,7 @@ def plot_regression_results(
     baseline_x=None,
     baseline_y=None,
     baseline_label='Funkcja odniesienia',
+    model_label='CART',
 ):
     x_values = np.asarray(x_values).reshape(-1)
     y_true = np.asarray(y_true).reshape(-1)
@@ -167,7 +168,7 @@ def plot_regression_results(
 
     plt.figure(figsize=(10, 4))
     plt.scatter(x_sorted, y_true_sorted, s=10, alpha=0.5, label=data_label)
-    plt.plot(x_sorted, y_pred_sorted, color='red', linewidth=2, label='CART')
+    plt.plot(x_sorted, y_pred_sorted, color='red', linewidth=2, label=model_label)
 
     if baseline_x is not None and baseline_y is not None:
         baseline_x = np.asarray(baseline_x).reshape(-1)
